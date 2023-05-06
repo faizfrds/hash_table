@@ -2,6 +2,8 @@ package structures;
 
 import java.util.Iterator;
 
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
+
 //This class implements a hashtable for a generic key and value type using an array backend.
 public class ArrayHashTable<K, V> implements HashTable<K, V> {
 
@@ -25,7 +27,13 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
    */
   public ArrayHashTable(CollisionHandler <K> collisionHdler) {
       //TODO: Implement this method.
-
+      count = 0;
+      capacity = DEFAULT_CAPACITY;
+      loadFactor = DEFAULT_LOAD_FACTOR;
+      this.collisionHandler = collisionHdler;
+      keyArray = (K[]) new Object[capacity];
+      valueArray = (V[]) new Object[capacity];
+      isActiveArray = new boolean[capacity];
   }
 
   /**
@@ -36,6 +44,13 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   public ArrayHashTable(int capacity, CollisionHandler <K> collisionHdler){
       //TODO: Implement this method.
 
+      count = 0;
+      this.capacity = capacity;
+      loadFactor = DEFAULT_LOAD_FACTOR;
+      this.collisionHandler = collisionHdler;
+      keyArray = (K[]) new Object[capacity];
+      valueArray = (V[]) new Object[capacity];
+      isActiveArray = new boolean[capacity];
   }
 
   /**
@@ -46,6 +61,13 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   public ArrayHashTable(int capacity, double loadFactor, CollisionHandler <K> collisionHdler){
       //TODO: Implement this method.
 
+      count = 0;
+      this.capacity = capacity;
+      this.loadFactor = loadFactor;
+      this.collisionHandler = collisionHdler;
+      keyArray = (K[]) new Object[capacity];
+      valueArray = (V[]) new Object[capacity];
+      isActiveArray = new boolean[capacity];
   }
 
   /** 
@@ -53,7 +75,13 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
    */
   public int getSize() {
       //TODO: Implement this method.
-      return -1;
+
+      int size = 0;
+      for (int i = 0; i < isActiveArray.length; i++){
+
+        if (isActiveArray[i]) size++;
+      }
+      return size;
   }
 
    /**
@@ -67,7 +95,31 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
    */
   private void resizeArray() {
    //TODO: Implement this method
+
+      int newCapacity = capacity*2;
+      boolean[] newActiveArray = new boolean[newCapacity];
+      K[] newKeyArray = (K[]) new Object[newCapacity];  //stores all keys 
+      V[] newValueArray = (V[]) new Object[newCapacity];  // stores all values
       
+      for (int i = 0; i < capacity; i++){
+
+        if (isActiveArray[i]){
+
+          int index = getHashOfKey(keyArray[i]);
+          //index = collisionHandler.probe(index, isActiveArray, capacity);
+          
+          newKeyArray[index] = keyArray[i];
+          newValueArray[index] = valueArray[i];
+          newActiveArray[index] = true;
+        }
+
+      }
+
+      keyArray = newKeyArray;
+      valueArray = newValueArray;
+      isActiveArray = newActiveArray;
+      capacity = newCapacity;
+
   }
 
   /**
@@ -77,7 +129,8 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   */
   private double calcLoadFactor() {
    //TODO: Implement this method
-      return 0;
+
+      return getSize()/keyArray.length;
   } 
 
   /**
@@ -101,7 +154,7 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
    * Please use the provided getHash method to get the hash for the array index.
    * Steps: check is current load is > loadFactor. If true, call resizeArray.
    * Then see if key is in the table by calling getIndex. If key exists, overwrite value
-   * in the valueArray. If key does not exist, get the index by calling the hash function (getHash).
+   * in the valueArray. 
    * Then call resolveCollision to see if a collision occurs and if so, that methos will use the 
    * collision handler to resolve it. Then enter the key in the keyArray using the index returned from 
    * resolveCollision, enter the value in the valueArray, and set the isActiveArray to true. Finally,
@@ -110,6 +163,26 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   public void put(K key, V value) {
       //TODO: Implement this method.
 
+      if (key == null) throw new IllegalArgumentException();
+
+      if (calcLoadFactor() >= loadFactor) resizeArray();
+
+      int index = getHashOfKey(key);
+
+      index = collisionHandler.probe(index, isActiveArray, capacity);
+
+      if (index == -1) throw new IllegalStateException("Full table");
+      
+      else if(keyArray[index] == key){
+
+        valueArray[index] = value;
+      }
+
+      else{
+        isActiveArray[index] = true;
+        keyArray[index] = key;
+        valueArray[index] = value;
+      }
   }
 
   /**
@@ -120,6 +193,10 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
    */
   public V getValue(K target) {
    //TODO: Implement this method
+
+      int index = getHashOfKey(target);
+
+      if (isActiveArray[index]) return valueArray[index];
       return null;
   }
 
@@ -133,7 +210,16 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
    */
   public V remove(K targetKey)throws ElementNotFoundException {
    //TODO: Implement this method
-      return null;
+
+      if (targetKey == null) throw new IllegalArgumentException();
+
+      int index = collisionHandler.search(0, targetKey, keyArray, isActiveArray, capacity);
+      V removed = valueArray[index];
+
+      isActiveArray[index] = false;
+
+
+      return removed;
   }
 
   /**

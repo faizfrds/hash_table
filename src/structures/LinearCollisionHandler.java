@@ -1,5 +1,7 @@
 package structures;
 
+import java.security.DrbgParameters.Capability;
+
 public class LinearCollisionHandler <K> implements CollisionHandler <K>{
     private int probeLength;
 
@@ -21,6 +23,19 @@ public class LinearCollisionHandler <K> implements CollisionHandler <K>{
   */
    public int probe(int index, boolean[] activeArray, int M) {
       //TODO: Implement this method.
+
+      int curIndex = index;
+      int count = 0;
+
+      while (count < M){
+        
+        if (!activeArray[curIndex]) return curIndex;
+        if (curIndex == M-1) curIndex = 0;
+        
+        curIndex++;
+        count++;
+      }
+
       return -1;
    }
 
@@ -31,6 +46,18 @@ public class LinearCollisionHandler <K> implements CollisionHandler <K>{
 */
    public int search(int startIndex, K target, K[] keyArray, boolean [] activeArray, int M){
       //TODO: Implement this method.
+
+      int curIndex = startIndex;
+      int count = 0;
+      
+      while (count < M){
+
+        if (!activeArray[curIndex]) return -1;
+        else if (keyArray[curIndex] == target) return curIndex;
+        
+        curIndex++;
+        count++;
+      }
 
     return -1;
    }
