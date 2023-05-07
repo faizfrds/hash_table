@@ -29,8 +29,16 @@ public class QuadraticCollisionHandler <K> implements CollisionHandler <K>{
   *@param M the size of the table.
   */
   public int probe(int startIndex, boolean[] activeArray, int M) {
-    int curIndex = -1;
-      //TODO: Implement this method.
+    //TODO: Implement this method.
+    
+    int curIndex = startIndex;
+    int i = 1;
+
+    while (activeArray[curIndex]) {
+
+        curIndex = (curIndex + c1*i + c2*(i*i)) % M;
+        i++;
+    }
 
     return curIndex;
  }
@@ -42,7 +50,17 @@ public class QuadraticCollisionHandler <K> implements CollisionHandler <K>{
 */
  public int search(int startIndex, K target, K[] keyArray, boolean [] activeArray, int M){
       //TODO: Implement this method.
+      int curIndex = startIndex;
+      int i = 1;
 
-  return -1;
+      while (activeArray[curIndex]) {
+
+        if (keyArray[curIndex] == target) return curIndex;
+    
+        curIndex = (curIndex + c1*i + c2*(i*i)) % M;
+        i++;
+      }
+
+      return -1;
  }
 }

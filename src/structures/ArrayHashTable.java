@@ -164,17 +164,15 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
       //TODO: Implement this method.
 
       if (key == null) throw new IllegalArgumentException();
-
-      if (calcLoadFactor() >= loadFactor) resizeArray();
+      if (calcLoadFactor() > loadFactor) resizeArray();
 
       int index = getHashOfKey(key);
-
       index = collisionHandler.probe(index, isActiveArray, capacity);
+
 
       if (index == -1) throw new IllegalStateException("Full table");
       
       else if(keyArray[index] == key){
-
         valueArray[index] = value;
       }
 
@@ -213,9 +211,10 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
 
       if (targetKey == null) throw new IllegalArgumentException();
 
-      int index = collisionHandler.search(0, targetKey, keyArray, isActiveArray, capacity);
-      V removed = valueArray[index];
+      int startIndex = getHashOfKey(targetKey);
 
+      int index = collisionHandler.search(startIndex, targetKey, keyArray, isActiveArray, capacity);
+      V removed = valueArray[index];
       isActiveArray[index] = false;
 
 
@@ -283,6 +282,7 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
        System.out.println(table.getValue(curKey)+", ");
      }
     // test removing 
+    System.out.println(table.getValue("matt"));
     table.remove("matt");
     System.out.println("test remove: "+table.getValue("matt"));
   }

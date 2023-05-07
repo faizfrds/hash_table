@@ -32,7 +32,7 @@ public class LinearCollisionHandler <K> implements CollisionHandler <K>{
         if (!activeArray[curIndex]) return curIndex;
         if (curIndex == M-1) curIndex = 0;
         
-        curIndex++;
+        curIndex = (curIndex + probeLength) % M;
         count++;
       }
 
@@ -48,17 +48,13 @@ public class LinearCollisionHandler <K> implements CollisionHandler <K>{
       //TODO: Implement this method.
 
       int curIndex = startIndex;
-      int count = 0;
-      
-      while (count < M){
 
-        if (!activeArray[curIndex]) return -1;
-        else if (keyArray[curIndex] == target) return curIndex;
+      while (activeArray[curIndex]) {
         
-        curIndex++;
-        count++;
+        if (keyArray[curIndex] == target) return curIndex;
+        curIndex = (curIndex + 1) % M;
       }
-
+      
     return -1;
    }
 }
