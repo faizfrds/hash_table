@@ -180,6 +180,7 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
         isActiveArray[index] = true;
         keyArray[index] = key;
         valueArray[index] = value;
+        count++;
       }
   }
 
@@ -194,8 +195,17 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
 
       int index = getHashOfKey(target);
 
-      if (isActiveArray[index]) return valueArray[index];
+      if (keyArray[index] != target) index = collisionHandler.search(index, target, keyArray, isActiveArray, capacity);
+
+      if (index == -1){
+        return null;
+      }
+      else if (isActiveArray[index]) {
+        return valueArray[index];
+      }
+
       return null;
+      // Check if key exists by calling getIndex.
   }
 
   /**
@@ -217,7 +227,7 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
       V removed = valueArray[index];
       isActiveArray[index] = false;
 
-
+      count--;
       return removed;
   }
 
@@ -284,6 +294,6 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
     // test removing 
     System.out.println(table.getValue("matt"));
     table.remove("matt");
-    System.out.println("test remove: "+table.getValue("matt"));
+   System.out.println("test remove: "+table.getValue("matt"));
   }
 }
