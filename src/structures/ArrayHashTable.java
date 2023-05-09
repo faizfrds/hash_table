@@ -76,12 +76,7 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   public int getSize() {
       //TODO: Implement this method.
 
-      int size = 0;
-      for (int i = 0; i < isActiveArray.length; i++){
-
-        if (isActiveArray[i]) size++;
-      }
-      return size;
+      return count;
   }
 
    /**
@@ -96,29 +91,29 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   private void resizeArray() {
    //TODO: Implement this method
 
-      int newCapacity = capacity*2;
-      boolean[] newActiveArray = new boolean[newCapacity];
-      K[] newKeyArray = (K[]) new Object[newCapacity];  //stores all keys 
-      V[] newValueArray = (V[]) new Object[newCapacity];  // stores all values
-      
-      for (int i = 0; i < capacity; i++){
+    capacity = capacity*2;
+    boolean[] newActiveArray = new boolean[capacity];
+    K[] newKeyArray = (K[]) new Object[capacity];  //stores all keys 
+    V[] newValueArray = (V[]) new Object[capacity];  // stores all values
+    
+    for (int i = 0; i < capacity/2; i++){
 
-        if (isActiveArray[i]){
+      if (isActiveArray[i]){
 
-          int index = getHashOfKey(keyArray[i]);
-          //index = collisionHandler.probe(index, isActiveArray, capacity);
-          
-          newKeyArray[index] = keyArray[i];
-          newValueArray[index] = valueArray[i];
-          newActiveArray[index] = true;
-        }
-
+        int index = getHashOfKey(keyArray[i]);
+        index = collisionHandler.probe(index, newActiveArray, capacity);
+        
+        newKeyArray[index] = keyArray[i];
+        newValueArray[index] = valueArray[i];
+        newActiveArray[index] = true;
       }
 
-      keyArray = newKeyArray;
-      valueArray = newValueArray;
-      isActiveArray = newActiveArray;
-      capacity = newCapacity;
+    }
+
+    keyArray = newKeyArray;
+    valueArray = newValueArray;
+    isActiveArray = newActiveArray;
+    //capacity = newCapacity;
 
   }
 
@@ -130,7 +125,7 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   private double calcLoadFactor() {
    //TODO: Implement this method
 
-      return getSize()/keyArray.length;
+      return (double) getSize() / capacity;
   } 
 
   /**
@@ -167,16 +162,15 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
       if (calcLoadFactor() > loadFactor) resizeArray();
 
       int index = getHashOfKey(key);
-      index = collisionHandler.probe(index, isActiveArray, capacity);
 
-
-      if (index == -1) throw new IllegalStateException("Full table");
-      
-      else if(keyArray[index] == key){
+      if (keyArray[index] == key){
         valueArray[index] = value;
       }
 
       else{
+
+        index = collisionHandler.probe(index, isActiveArray, capacity);
+
         isActiveArray[index] = true;
         keyArray[index] = key;
         valueArray[index] = value;
@@ -193,19 +187,16 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   public V getValue(K target) {
    //TODO: Implement this method
 
-      int index = getHashOfKey(target);
+    int index = getHashOfKey(target);
 
-      if (keyArray[index] != target) index = collisionHandler.search(index, target, keyArray, isActiveArray, capacity);
+    if (keyArray[index] != target) index = collisionHandler.search(index, target, keyArray, isActiveArray, capacity);
 
-      if (index == -1){
-        return null;
-      }
-      else if (isActiveArray[index]) {
+    // Check if key exists by calling getIndex.
+
+    if (index == -1) return null;
+    else{
         return valueArray[index];
-      }
-
-      return null;
-      // Check if key exists by calling getIndex.
+    } 
   }
 
   /**
@@ -224,10 +215,14 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
       int startIndex = getHashOfKey(targetKey);
 
       int index = collisionHandler.search(startIndex, targetKey, keyArray, isActiveArray, capacity);
+
+      if (index == -1) throw new ElementNotFoundException("Abc");
+
       V removed = valueArray[index];
       isActiveArray[index] = false;
 
       count--;
+
       return removed;
   }
 
@@ -273,18 +268,24 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
     */
   public static void main(String[] args) throws Exception {
       // Init the type of collision handler: linear or quadratic.
-    // CollisionHandler <String> collisionHdler = new LinearCollisionHandler<>();
-      CollisionHandler <String> collisionHdler = new QuadraticCollisionHandler<>();
+    CollisionHandler <String> collisionHdler = new LinearCollisionHandler<>();
+      //CollisionHandler <String> collisionHdler = new QuadraticCollisionHandler<>();
      ArrayHashTable<String, String> table = new ArrayHashTable<String, String> (collisionHdler);
      table.put("fatimeh", "ef4#B%k");
      // test the get method after the put method was called:
      System.out.println("test get after put: "+table.getValue("fatimeh"));
+     System.out.println(table.getHashOfKey("fatimeh"));
      table.put("matt", "A9d%&b");
+     System.out.println(table.getHashOfKey("matt"));
      table.put("fadhil", "2h*k9s");
+     System.out.println(table.getHashOfKey("fadhil"));
      table.put("rumeng", "j8*shX2");
+     System.out.println(table.getHashOfKey("rumeng"));
+
     // this next call should cause a resize- uncomment when the table works on the above data:
-     table.put("harper", "m8Ut6%#a");
+    table.put("harper", "m8Ut6%#a");
     // test the keyIterator
+    System.out.println(table.count);
      Iterator<String> keyIter = table.keyIterator();
      while(keyIter.hasNext()){
        String curKey = keyIter.next();
@@ -294,6 +295,6 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
     // test removing 
     System.out.println(table.getValue("matt"));
     table.remove("matt");
-   System.out.println("test remove: "+table.getValue("matt"));
+    System.out.println("test remove: "+table.getValue("matt"));
   }
 }

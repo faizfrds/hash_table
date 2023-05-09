@@ -26,13 +26,12 @@ public class LinearCollisionHandler <K> implements CollisionHandler <K>{
    public int probe(int index, boolean[] activeArray, int M) {
       //TODO: Implement this method.
 
-      if (!activeArray[index]) return index;
-
-      while (activeArray[index]){
-        
-        index = (index + probeLength) % M;
+      if (!activeArray[index]) {
+        return index;
+      } else {
+        int nextIndex = (index + probeLength) % M;
+        return probe(nextIndex, activeArray, M);
       }
-      return index;
    }
 
   /**
@@ -43,14 +42,12 @@ public class LinearCollisionHandler <K> implements CollisionHandler <K>{
    public int search(int startIndex, K target, K[] keyArray, boolean [] activeArray, int M){
       //TODO: Implement this method.
 
+      if (!activeArray[startIndex] && keyArray[startIndex] == null) return -1;
 
-      while (activeArray[startIndex]) {
-
+      if (activeArray[startIndex]){
         if (keyArray[startIndex] == target) return startIndex;
-    
-        startIndex = (startIndex + probeLength) % M;
       }
-
-      return -1;
+      
+      return search((startIndex + probeLength) % M, target, keyArray, activeArray, M);
    }
 }
