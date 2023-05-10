@@ -188,10 +188,8 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
    //TODO: Implement this method
 
     int index = getHashOfKey(target);
-
+    
     if (keyArray[index] != target) index = collisionHandler.search(index, target, keyArray, isActiveArray, capacity);
-
-    // Check if key exists by calling getIndex.
 
     if (index == -1) return null;
     else{
@@ -210,20 +208,17 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
   public V remove(K targetKey)throws ElementNotFoundException {
    //TODO: Implement this method
 
-      if (targetKey == null) throw new IllegalArgumentException();
+    int index = getHashOfKey(targetKey);
 
-      int startIndex = getHashOfKey(targetKey);
+    //if (keyArray[index] != targetKey) index = collisionHandler.search(index, targetKey, keyArray, isActiveArray, capacity);
 
-      int index = collisionHandler.search(startIndex, targetKey, keyArray, isActiveArray, capacity);
+    if (index == -1) throw new ElementNotFoundException(null);
 
-      if (index == -1) throw new ElementNotFoundException("Abc");
-
-      V removed = valueArray[index];
-      isActiveArray[index] = false;
-
-      count--;
-
-      return removed;
+    else{
+        isActiveArray[index] = false;
+        count--;
+        return valueArray[index];
+    } 
   }
 
   /**
@@ -292,9 +287,17 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
        System.out.print(curKey+ " ");
        System.out.println(table.getValue(curKey)+", ");
      }
-    // test removing 
-    System.out.println(table.getValue("matt"));
-    table.remove("matt");
-    System.out.println("test remove: "+table.getValue("matt"));
+    // test removing
+    table.remove("rumeng");
+    System.out.println("test remove: "+table.getValue("rumeng"));
+    System.out.println(table.count);
+    System.out.println(table.isActiveArray[4]);
+
+    Iterator<String> keyItera = table.keyIterator();
+     while(keyItera.hasNext()){
+       String curKey = keyItera.next();
+       System.out.print(curKey+ " ");
+       System.out.println(table.getValue(curKey)+", ");
+     }
   }
 }
