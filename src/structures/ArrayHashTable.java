@@ -210,15 +210,19 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
 
     int index = getHashOfKey(targetKey);
 
-    //if (keyArray[index] != targetKey) index = collisionHandler.search(index, targetKey, keyArray, isActiveArray, capacity);
+    if (keyArray[index] != targetKey){
 
-    if (index == -1) throw new ElementNotFoundException(null);
+      index = collisionHandler.search(index, targetKey, keyArray, isActiveArray, capacity);
 
-    else{
-        isActiveArray[index] = false;
-        count--;
-        return valueArray[index];
+      if (index == -1) throw new ElementNotFoundException(null);
+
     } 
+
+    isActiveArray[index] = false;
+    count--;
+
+    return valueArray[index];
+    
   }
 
   /**
@@ -288,10 +292,10 @@ public class ArrayHashTable<K, V> implements HashTable<K, V> {
        System.out.println(table.getValue(curKey)+", ");
      }
     // test removing
-    table.remove("rumeng");
-    System.out.println("test remove: "+table.getValue("rumeng"));
+    table.remove("fadhil");
+    System.out.println("test remove: "+table.getValue("fadhil"));
     System.out.println(table.count);
-    System.out.println(table.isActiveArray[4]);
+    System.out.println(table.isActiveArray[0]);
 
     Iterator<String> keyItera = table.keyIterator();
      while(keyItera.hasNext()){
